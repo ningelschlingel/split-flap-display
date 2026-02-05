@@ -1,59 +1,23 @@
-# SplitFlapDisplay
+# ✈️ Mechanical Split-Flap Display 
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
+A high-fidelity, physics-informed digital recreation of the iconic Solari-style split-flap displays. Built with **Angular 21** and **Tailwind 4**, this project focuses on the intersection of mechanical realism and performant web animation.
 
-## Development server
 
-To start a local development server, run:
 
-```bash
-ng serve
-```
+## 🚀 Technical Highlights
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+* **Trapezoidal Velocity Profile:** Unlike standard linear animations, this display features mechanical "ramping." It simulates motor torque by accelerating during long character transitions and decelerating as it approaches the target index for a "soft landing."
+* **Reactive State Engine:** Built using **Angular Signals**, ensuring that only the specific flaps requiring an update are re-rendered, improving performance.
+* **Coordinated Cascading:** Implements update patterns where signals propagate through the board (linearly or diagonally) to mimic real-world electrical sequencing and hardware communication delays.
+* **Sub-millisecond Reactivity:** Animation cycles are managed via a recursive logic loop that utilizes `requestAnimationFrame` for perfect frame synchronization and layout-drift prevention.
 
-## Code scaffolding
+## 🔗 Links
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+* **Live Demo:** [Experience the Motion](https://ningelschlingel.github.io/split-flap-display/)
+* **Inspiration:** This is a Tailwind-based evolution of [Turbaero](https://github.com/ningelschlingel/turbaero), shifting from static assets to a fully procedural, code-driven animation system.
 
-```bash
-ng generate component component-name
-```
+## 🏗️ Roadmap
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [ ] **Character Sets:** Expanding beyond A-Z0-9 to include punctuation, specialized airport symbols, colors and more.
+- [ ] **Responsive Refinement:** Fine-tuning for smaller touch devices.
+- [ ] **Sound Engine:** Implementing the Web Audio API for velocity-tracked mechanical clicks.

@@ -1,0 +1,71 @@
+<div class="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-start p-4 md:p-8">
+
+    <div
+        class="z-50 mb-8 flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3 backdrop-blur-md shadow-2xl">
+        <div class="flex items-center gap-3 px-4 py-2 bg-zinc-950/50 rounded-xl border border-zinc-800">
+            <span class="text-[10px] uppercase tracking-tighter text-zinc-500 font-bold">Rows</span>
+            <button (click)="updateDim('r', -1)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all">-</button>
+            <span class="min-w-6 text-center font-mono text-lg">{{ rows() }}</span>
+            <button (click)="updateDim('r', 1)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all">+</button>
+        </div>
+
+        <div class="hidden md:block h-8 w-px bg-zinc-800"></div>
+
+        <div class="flex items-center gap-3 px-4 py-2 bg-zinc-950/50 rounded-xl border border-zinc-800">
+            <span class="text-[10px] uppercase tracking-tighter text-zinc-500 font-bold">Cols</span>
+            <button (click)="updateDim('c', -1)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all">-</button>
+            <span class="min-w-6 text-center font-mono text-lg">{{ cols() }}</span>
+            <button (click)="updateDim('c', 1)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all">+</button>
+        </div>
+    </div>
+
+    <div class="w-full flex items-center justify-center overflow-auto py-4">
+        <div class="scale-[0.6] sm:scale-75 md:scale-90 lg:scale-100 origin-center transition-transform">
+            <app-board [rows]="rows()" [cols]="cols()" [messages]="messageQueue()" [interval]="interval()" />
+        </div>
+    </div>
+
+    <div class="w-full max-w-4xl mt-8">
+        <div class="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-xl shadow-inner">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500">Content Sequences</h3>
+                <div class="flex items-center gap-4">
+                    <span class="text-[10px] text-zinc-600">Auto-flip: {{interval() / 1000}}s</span>
+                    <button (click)="addMessage()"
+                        class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-bold transition-colors shadow-lg shadow-blue-900/20">
+                        + NEW SLIDE
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @for (msg of messageQueue(); track $index) {
+                <div
+                    class="relative group rounded-2xl bg-zinc-950 border border-zinc-800 p-1 focus-within:border-blue-500 transition-colors">
+                    <textarea [(ngModel)]="messageQueue()[$index]" (input)="validateInput($index)" [rows]="3"
+                        class="w-full bg-transparent p-4 font-mono text-sm uppercase resize-none outline-none text-zinc-300 placeholder:text-zinc-800"
+                        placeholder="Enter message...">
+                </textarea>
+                    <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                        <span class="text-[9px] font-bold text-zinc-700">#{{$index + 1}}</span>
+                        @if (messageQueue().length > 1) {
+                        <button (click)="removeMessage($index)"
+                            class="text-zinc-700 hover:text-red-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

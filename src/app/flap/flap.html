@@ -1,0 +1,30 @@
+<div (mouseenter)="isHovered.set(true)" (mouseleave)="isHovered.set(false)"
+    class="perspective-normal relative flex h-20 w-12 flex-col text-5xl font-black select-none cursor-pointer">
+
+    <div
+        class="relative flex h-1/2 w-full items-end justify-center overflow-hidden rounded-t-xl border-b border-black/40 bg-zinc-900 text-zinc-100">
+        <span class="translate-y-1/2 leading-none">{{ nextChar() }}</span>
+    </div>
+
+    <div
+        class="relative flex h-1/2 w-full items-start justify-center overflow-hidden rounded-b-xl bg-zinc-900 shadow-2xl text-zinc-500">
+        <span class="-translate-y-1/2 leading-none">{{ currentChar() }}</span>
+    </div>
+    <div class="transform-3d absolute inset-0 z-10 h-1/2 w-full origin-bottom"
+        [class.transition-transform]="isFlipping()" [class.duration-200]="isFlipping()" [class.[ease-in]]="isFlipping()"
+        [style.transitionDuration.ms]="currentSpeed()" [style.transform]="pendingRotation()">
+        <div
+            class="backface-hidden absolute inset-0 flex items-end justify-center overflow-hidden rounded-t-xl border-b border-black/50 bg-zinc-900 text-zinc-100">
+            <span class="translate-y-1/2 leading-none">{{ currentChar() }}</span>
+            <div class="absolute inset-0 bg-black/40 transition-opacity duration-200" [class.opacity-100]="isFlipping()"
+                [class.opacity-0]="!isFlipping()"></div>
+        </div>
+
+        <div
+            class="backface-hidden absolute inset-0 flex transform-[rotateX(-180deg)] items-start justify-center overflow-hidden rounded-b-xl bg-zinc-900 text-zinc-500">
+            <span class="-translate-y-1/2 leading-none">{{ nextChar() }}</span>
+        </div>
+    </div>
+
+    <div class="absolute top-1/2 right-0 left-0 z-20 h-0.5 -translate-y-1/2 bg-black/90"></div>
+</div>

@@ -11,6 +11,8 @@ export class Flap {
 
   delay = input<number>(0);
 
+  displayNext = computed(() => this.isFlipping());
+
   currentIndex = signal(0);
   isFlipping = signal(false);
   isHovered = signal(false);
@@ -41,39 +43,47 @@ export class Flap {
   private async checkAndFlip() {
     if (this.isFlipping()) return;
 
-    const targetIdx = this.chars().indexOf(this.target().toUpperCase());
+    const chars = this.chars();
+    const targetIdx = chars.indexOf(this.target().toUpperCase());
     const finalTarget = targetIdx === -1 ? 0 : targetIdx;
 
+    // if not at target char
     if (this.currentIndex() !== finalTarget || this.isHovered()) {
-      // idstance to target char
-      const distance = (finalTarget - this.currentIndex() + this.chars().length) % this.chars().length;
 
-      // speed calc
-      if (distance > 5) {
-        // accelerate or stay at MAX_SPEED if distance is high
-        this.flipCount++;
-        const nextSpeed = Math.max(this.MAX_SPEED, this.START_SPEED - (this.flipCount * 50));
-        this.currentSpeed.set(nextSpeed);
-      } else {
-        // decelerate otherwise
-        const slowDown = (5 - distance) * 40;
-        this.currentSpeed.set(this.MAX_SPEED + slowDown);
-      }
+      const distance = (finalTarget - this.currentIndex() + chars.length) % chars.length;
+      this.updateSpeed(distance);
 
+      // flip
       this.isFlipping.set(true);
-      await new Promise(resolve => setTimeout(resolve, 15));
       this.pendingRotation.set('rotateX(-180deg)');
 
-      setTimeout(() => {
-        this.isFlipping.set(false);
-        this.pendingRotation.set('rotateX(0deg)');
-        this.currentIndex.set((this.currentIndex() + 1) % this.chars().length);
+      // wait for the animation
+      await new Promise(resolve => setTimeout(resolve, this.currentSpeed()));
 
-        requestAnimationFrame(() => this.checkAndFlip());
-      }, this.currentSpeed());
+      // reset rotation and increment index in the same microtask
+      this.isFlipping.set(false);
+      this.pendingRotation.set('rotateX(0deg)');
+      this.currentIndex.set((this.currentIndex() + 1) % chars.length);
+
+      // use requestAnimationFrame to check if we hit the target
+      requestAnimationFrame(() => this.checkAndFlip());
     } else {
+      // target reached, reset speed
       this.flipCount = 0;
       this.currentSpeed.set(this.START_SPEED);
+    }
+  }
+
+  private updateSpeed(distance: number) {
+    if (distance > 5 || this.isHovered()) {
+      // accelerate or keep speed
+      this.flipCount++;
+      const nextSpeed = Math.max(this.MAX_SPEED, this.START_SPEED - (this.flipCount * 20));
+      this.currentSpeed.set(nextSpeed);
+    } else {
+      // smooth slow down
+      const slowDown = (5 - distance) * 35;
+      this.currentSpeed.set(this.MAX_SPEED + slowDown);
     }
   }
 }

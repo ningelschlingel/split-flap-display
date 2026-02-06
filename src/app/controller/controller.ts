@@ -17,7 +17,6 @@ export class Controller {
   updateDim(type: 'r' | 'c', change: number) {
     if (type === 'r') this.rows.update(v => Math.max(1, Math.min(10, v + change)));
     else this.cols.update(v => Math.max(1, Math.min(20, v + change)));
-    // We clear current content to prevent misalignment, but you could also slice it
     this.messageQueue.set(['']);
   }
 

@@ -20,10 +20,53 @@ export class Controller {
   interval = signal(8000);
   messageQueue = signal<string[]>(['DIGITAL\nSPLIT\nFLAP', 'BUILD\nYOUR\nOWN', 'HELLO\nWORLD']);
 
-  isMinimized = signal(false);
+  isMinimized = signal(true);
 
   toggleMinimize() {
     this.isMinimized.update(v => !v);
+  }
+
+  wasCopied = signal(false);
+
+  copyShareLink() {
+    const url = window.location.href;
+
+    // Attempt 1: Modern API
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(() => {
+        this.showSuccess();
+      }).catch(() => {
+        this.copyFallback(url);
+      });
+    } else {
+      this.copyFallback(url);
+    }
+  }
+
+  private copyFallback(text: string) {
+    // Create a hidden textarea, select it, and copy
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed"; // prevent scrolling to bottom
+    textArea.style.left = "-9999px";
+    textArea.style.top = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      document.execCommand('copy');
+      this.showSuccess();
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  private showSuccess() {
+    this.wasCopied.set(true);
+    setTimeout(() => this.wasCopied.set(false), 2000);
   }
 
   constructor() {

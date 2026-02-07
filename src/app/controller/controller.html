@@ -1,25 +1,44 @@
 <div class="fixed inset-0 bg-zinc-950 text-zinc-100 flex flex-col overflow-hidden">
 
     <!-- BOARD -->
-    <div class="flex-1 w-full flex flex-col items-center justify-center p-4 min-h-0">
-        <div class="scale-[0.5] sm:scale-75 md:scale-90 lg:scale-100 origin-center transition-all duration-300">
+    <div class="absolute inset-0 flex items-center justify-center p-4 pb-32">
+        <div class="scale-[0.5] sm:scale-75 md:scale-90 lg:scale-100 origin-center transition-all duration-500">
             <app-board [rows]="rows()" [cols]="cols()" [messages]="messageQueue()" [interval]="interval()" />
         </div>
     </div>
     <!-- BOARD -->
 
     <!-- CONFIG -->
-    <div class="w-full max-w-2xl mx-auto px-4 pb-4 md:pb-8">
-        <div
-            class="rounded-3xl border border-zinc-800 bg-zinc-900/80 overflow-hidden backdrop-blur-2xl shadow-2xl transition-all duration-300">
+    <div class="absolute bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 pb-4 md:pb-8 z-50">
+        <div [class.opacity-100]="!isMinimized()" [class.opacity-0]="isMinimized()"
+            class="absolute inset-0 -top-24 bg-linear-to-t from-zinc-950 via-zinc-950/10 to-transparent pointer-events-none transition-opacity duration-700">
+        </div>
 
+        <div
+            class="relative rounded-3xl border border-zinc-800 bg-zinc-900/90 overflow-hidden backdrop-blur-2xl shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.8)] transition-all duration-500">
             <!-- CONFIG EDIT VIEW -->
             @if (!isMinimized()) {
             <div class="flex items-center justify-between p-3 gap-2 bg-zinc-950/60 border-b border-zinc-800">
 
                 <span class="text-sm font-bold text-zinc-500 uppercase tracking-widest px-2">
-                    SLIDES
+                    DISPLAY
                 </span>
+
+                <button (touchstart)="$event.preventDefault(); copyShareLink()" (click)="copyShareLink()"
+                    class="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 rounded-2xl border border-blue-500/20 transition-all cursor-pointer active:scale-95">
+                    @if (!wasCopied()) {
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span class="text-[10px] font-bold uppercase tracking-tighter">Share</span>
+                    } @else {
+                    <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-[10px] font-bold uppercase tracking-tighter text-green-500">Copied</span>
+                    }
+                </button>
 
                 <!-- SLIDE TABS AND ADD BUTTON -->
                 <div class="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1 justify-end pl-4">
@@ -35,19 +54,18 @@
                         class="flex-none w-8 h-8 flex items-center justify-center rounded-xl bg-zinc-800 text-blue-500 hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">+</button>
                 </div>
                 <!-- SLIDE TABS AND ADD BUTTON -->
-                 
+
             </div>
 
             <div class="relative p-6 min-h-40">
 
                 <!-- SLIDE: FORMATTED TEXT -->
                 <div
-                    class="absolute inset-6 font-mono text-md md:text-xl uppercase tracking-wider pointer-events-none whitespace-pre select-none">
+                    class="absolute inset-6 font-mono text-md md:text-xl uppercase tracking-wider pointer-events-none whitespace-pre select-none z-0">
                     @for (line of getFormattedLines(); track $index) {
-                    <div [class.opacity-20]="$index >= rows()" class="leading-relaxed">
+                    <div [class.opacity-20]="$index >= rows()" class="leading-relaxed h-[1.625em]">
                         <span class="text-zinc-100">{{ line.safe }}</span>
                         <span class="text-zinc-800">{{ line.overflow }}</span>
-                        @if (line.content === '') { <br> }
                     </div>
                     }
                 </div>
@@ -55,10 +73,10 @@
 
                 <!-- SLIDE: TEXT INPUT -->
                 <textarea [(ngModel)]="messageQueue()[activeSlide]" (input)="validateInput(activeSlide)"
-                    [rows]="rows() > 4 ? rows() : 4"
-                    class="w-full bg-transparent font-mono text-md md:text-xl uppercase resize-none outline-none text-transparent caret-blue-500 tracking-wider relative z-10 leading-relaxed"
+                    [style.height.em]="rows() * 1.625"
+                    class="w-full bg-transparent font-mono text-md md:text-xl uppercase resize-none outline-none text-transparent caret-blue-500 tracking-wider relative z-10 leading-relaxed overflow-hidden p-0 border-none"
                     placeholder="TYPE...">
-                </textarea>
+    </textarea>
                 <!-- SLIDE: TEXT INPUT -->
 
                 <!-- SLIDE: DELETE -->
@@ -75,40 +93,43 @@
                     </button>
                 </div>
                 <!-- SLIDE: DELETE -->
-                 
+
             </div>
 
             <div class="flex items-center justify-between p-4 bg-zinc-950/40 border-t border-zinc-800">
-                <div class="flex items-center gap-1 bg-zinc-900 px-3 py-1.5 rounded-2xl border border-zinc-800">
-                    <div class="flex items-center gap-1">
-                        <svg class="w-3 h-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <button (click)="updateDim('r', -1)"
-                            class="w-6 h-6 hover:text-blue-500 cursor-pointer">—</button>
-                        <span class="font-mono text-sm min-w-[2ch] text-center inline-block">{{ rows() }}</span>
-                        <button (click)="updateDim('r', 1)"
-                            class="w-6 h-6 hover:text-blue-500 cursor-pointer">+</button>
-                    </div>
-                    <div class="w-px h-3 bg-zinc-800 mx-1"></div>
-                    <div class="flex items-center gap-1">
-                        <svg class="w-3 h-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="2" d="M6 4v16M12 4v16M18 4v16" />
-                        </svg>
-                        <button (click)="updateDim('c', -1)"
-                            class="w-6 h-6 hover:text-blue-500 cursor-pointer">—</button>
-                        <span class="font-mono text-sm min-w-[2ch] text-center inline-block">{{ cols() }}</span>
-                        <button (click)="updateDim('c', 1)"
-                            class="w-6 h-6 hover:text-blue-500 cursor-pointer">+</button>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-zinc-900 px-3 py-1.5 rounded-2xl border border-zinc-800">
+                        <div class="flex items-center gap-1">
+                            <svg class="w-3 h-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <button (touchstart)="$event.preventDefault()" (click)="updateDim('r', -1)"
+                                class="w-6 h-6 hover:text-blue-500 cursor-pointer">—</button>
+                            <span class="font-mono text-sm min-w-[2ch] text-center inline-block">{{ rows() }}</span>
+                            <button (touchstart)="$event.preventDefault()" (click)="updateDim('r', 1)"
+                                class="w-6 h-6 hover:text-blue-500 cursor-pointer">+</button>
+                        </div>
+                        <div class="w-px h-3 bg-zinc-800 mx-1"></div>
+                        <div class="flex items-center gap-1">
+                            <svg class="w-3 h-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-width="2" d="M6 4v16M12 4v16M18 4v16" />
+                            </svg>
+                            <button (touchstart)="$event.preventDefault()" (click)="updateDim('c', -1)"
+                                class="w-6 h-6 hover:text-blue-500 cursor-pointer">—</button>
+                            <span class="font-mono text-sm min-w-[2ch] text-center inline-block">{{ cols() }}</span>
+                            <button (touchstart)="$event.preventDefault()" (click)="updateDim('c', 1)"
+                                class="w-6 h-6 hover:text-blue-500 cursor-pointer">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <button (click)="toggleMinimize()" class="ml-2 p-2 text-zinc-500 hover:text-white cursor-pointer">
+                <button (click)="toggleMinimize()"
+                    class="ml-2 p-2 text-zinc-500 hover:text-white cursor-pointer transition-transform"
+                    [class.rotate-180]="isMinimized()">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-
             </div>
             }
             <!-- CONFIG EDIT VIEW -->

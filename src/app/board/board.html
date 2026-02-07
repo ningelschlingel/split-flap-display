@@ -1,4 +1,4 @@
-<div class="flex grow flex-col items-center justify-center bg-zinc-950 p-8">
+<div class="flex grow flex-col items-center justify-center bg-zinc-950">
 
     <div class="grid gap-2" [style.grid-template-columns]="'repeat(' + cols() + ', min-content)'">
         @for (rowIdx of rowsArray(); track rowIdx) {
@@ -8,7 +8,7 @@
         }
     </div>
 
-    <div class="mt-12 text-zinc-700 text-xs tracking-widest uppercase">
+    <div class="mt-8 text-zinc-700 text-xs tracking-widest uppercase">
         {{ rows() }}x{{ cols() }} Split Flap Display
     </div>
 </div>

@@ -19,19 +19,22 @@ export class Controller {
   cols = signal(10);
   interval = signal(8000);
   messageQueue = signal<string[]>(['DIGITAL\nSPLIT\nFLAP', 'BUILD\nYOUR\nOWN', 'HELLO\nWORLD']);
+  wasCopied = signal(false);
+  isMinimized = signal(false);
+  activeControl = signal<'none' | 'dim' | 'timing'>('none');
 
-  isMinimized = signal(true);
+  toggleControl(type: 'dim' | 'timing') {
+    this.activeControl.update(current => current === type ? 'none' : type);
+  }
 
   toggleMinimize() {
     this.isMinimized.update(v => !v);
   }
 
-  wasCopied = signal(false);
-
   copyShareLink() {
     const url = window.location.href;
 
-    // Attempt 1: Modern API
+    // attempt simple copy
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(url).then(() => {
         this.showSuccess();
@@ -44,7 +47,7 @@ export class Controller {
   }
 
   private copyFallback(text: string) {
-    // Create a hidden textarea, select it, and copy
+    // workaround for picky phones
     const textArea = document.createElement("textarea");
     textArea.value = text;
     textArea.style.position = "fixed"; // prevent scrolling to bottom
@@ -76,6 +79,7 @@ export class Controller {
       const data = {
         r: this.rows(),
         c: this.cols(),
+        t: this.interval(),
         m: this.messageQueue()
       };
 
@@ -104,6 +108,7 @@ export class Controller {
 
         if (data.r) this.rows.set(data.r);
         if (data.c) this.cols.set(data.c);
+        if (data.t) this.interval.set(data.t);
         if (data.m) this.messageQueue.set(data.m);
 
         console.log("Loaded Messages:", data.m);
@@ -113,6 +118,13 @@ export class Controller {
     } else {
       console.log("NO 'p' PARAMETER FOUND IN URL");
     }
+  }
+
+  updateInterval(delta: number) {
+    this.interval.update(v => {
+      const next = v + delta;
+      return next < 2000 ? 2000 : next; // minimum 2s
+    });
   }
 
   updateDim(type: 'r' | 'c', change: number) {
